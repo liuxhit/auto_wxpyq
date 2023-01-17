@@ -1,5 +1,6 @@
 # python环境
 ```shell
+# test for Python 3.6.10
 virtualenv venv
 source venv/bin/activate
 pip install -r requirements
