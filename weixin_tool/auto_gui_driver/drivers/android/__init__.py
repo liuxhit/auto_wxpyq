@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from weixin_tool.auto_gui_driver import ABCGUIDriver
 
 import uiautomator2 as u2
-from weixin_tool.auto_gui_driver.drivers.android.pages import HomePage, MinePage, PyqHomePage, PyqListPage, AlbumSelectPage, PyqUploadPage
+from weixin_tool.auto_gui_driver.drivers.android.pages import HomePage, MinePage, PyqHomePage, PyqListPage, AlbumSelectPage, PyqUploadPage, SearchPage, ChatPage
 
 
 class AndroidWeiXinGUIDriver(ABCGUIDriver):
@@ -30,6 +30,8 @@ class AndroidWeiXinGUIDriver(ABCGUIDriver):
     pyq_list: PyqListPage = None
     album_select: AlbumSelectPage = None
     pyq_upload: PyqUploadPage = None
+    search: SearchPage = None
+    chat: ChatPage = None
 
     to_clean_device_pic_file: typing.List[str] = None
 
@@ -71,6 +73,8 @@ class AndroidWeiXinGUIDriver(ABCGUIDriver):
         self.pyq_list = PyqListPage(self.d)
         self.album_select = AlbumSelectPage(self.d)
         self.pyq_upload = PyqUploadPage(self.d)
+        self.search = SearchPage(self.d)
+        self.chat = ChatPage(self.d)
 
         # 初始化资源清理列表
         self.to_clean_device_pic_file = []
@@ -188,6 +192,62 @@ class AndroidWeiXinGUIDriver(ABCGUIDriver):
                 self._delete_pic_and_refresh(device_pic_path=p)
                 time.sleep(self.sleep_sec)
 
+    def send_text_msg(self, chat_name, text_msg_content, *args, **kwargs) -> typing.Tuple[bool, typing.Any]:
+        """发送文字消息到好友/群聊"""
+        try:
+            self.go_home()
+            time.sleep(self.sleep_sec)
+            self.home.click_search_icon()
+            time.sleep(self.sleep_sec)
+            self.search.paste_search_text_content(chat_name)
+            time.sleep(self.sleep_sec)
+            self.search.click_first_search_result()
+            time.sleep(self.sleep_sec)
+            self.chat.paste_msg_text_content(text_msg_content)
+            time.sleep(self.sleep_sec)
+            self.chat.click_send_button()
+            time.sleep(self.sleep_sec)
+            # TODO: check send result
+            return True, None
+        except Exception as e:
+            self.log.exception(f'driver发送聊天消息出错: {e}')
+            return False, {'error': e}
+
+    def send_pic_msg(self, chat_name, chat_pic_path_list, *args, **kwargs) -> typing.Tuple[bool, typing.Any]:
+        """发送图片到好友/群聊"""
+        try:
+            assert len(chat_pic_path_list) >= 1, f'待发送图片列表为空'
+            self.go_home()
+            time.sleep(self.sleep_sec)
+            self.home.click_search_icon()
+            time.sleep(self.sleep_sec)
+            self.search.paste_search_text_content(chat_name)
+            time.sleep(self.sleep_sec)
+            self.search.click_first_search_result()
+            time.sleep(self.sleep_sec)
+            for pic_path in chat_pic_path_list:
+                with self._push_pic_and_refresh(host_pic_path=pic_path):
+                    time.sleep(self.sleep_sec)
+                    self.chat.click_more_button()
+                    time.sleep(self.sleep_sec)
+                    self.chat.click_album_button()
+                    time.sleep(self.sleep_sec)
+                    self.album_select.select_picture_by_int(0)  # 选择第一张照片（新上传的）
+                    time.sleep(self.sleep_sec)
+                    self.album_select.click_done_button()  # 完成照片选择，进入新朋友圈编辑页面
+                    time.sleep(self.sleep_sec)
+            time.sleep(self.sleep_sec)
+            # TODO: check send result
+            return True, None
+        except Exception as e:
+            self.log.exception(f'driver发送聊天图片出错: {e}')
+            return False, {'error': e}
+        finally:
+            while self.to_clean_device_pic_file:
+                p = self.to_clean_device_pic_file.pop()
+                self._delete_pic_and_refresh(device_pic_path=p)
+                time.sleep(self.sleep_sec)
+
 
 if __name__ == '__main__':
     exit()  # 仅保存代码，防止误操作运行
@@ -197,12 +257,14 @@ if __name__ == '__main__':
     from weixin_tool.auto_gui_driver.drivers.android.pages import BasePage
     b = BasePage(d)
 
-    from weixin_tool.auto_gui_driver.drivers.android.pages import HomePage, MinePage, PyqHomePage, PyqListPage, AlbumSelectPage, PyqUploadPage
-    h, m, ph, pl, asp, pu = HomePage(d), MinePage(d), PyqHomePage(d), PyqListPage(d), AlbumSelectPage(d), PyqUploadPage(d)
+    from weixin_tool.auto_gui_driver.drivers.android.pages import HomePage, MinePage, PyqHomePage, PyqListPage, AlbumSelectPage, PyqUploadPage, SearchPage, ChatPage
+    h, m, ph, pl, asp, pu, s, c = HomePage(d), MinePage(d), PyqHomePage(d), PyqListPage(d), AlbumSelectPage(d), PyqUploadPage(d), SearchPage(d), ChatPage(d)
 
     from weixin_tool.auto_gui_driver.drivers.android import AndroidWeiXinGUIDriver
     class MockConf:
         wx_gui_driver_android_device_location = ''
+        wx_ctl_ws = './testdata'
+        wx_ctl_gui_driver_android_ws = '/data/local/tmp/weixin_auto_gui_ws'
     gui_driver = AndroidWeiXinGUIDriver(conf=MockConf())
 
     print(2131231)

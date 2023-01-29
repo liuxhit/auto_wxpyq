@@ -23,3 +23,11 @@ class ABCGUIDriver:
     def send_pyq(self, pyq_text_content, pyq_pic_path_list, *args, **kwargs) -> typing.Tuple[bool, typing.Any]:
         """发送朋友圈"""
         raise NotImplementedError
+
+    def send_text_msg(self, chat_name, text_msg_content, *args, **kwargs) -> typing.Tuple[bool, typing.Any]:
+        """发送文字消息到好友/群聊"""
+        raise NotImplementedError
+
+    def send_pic_msg(self, chat_name, chat_pic_path_list, *args, **kwargs) -> typing.Tuple[bool, typing.Any]:
+        """发送图片到好友/群聊"""
+        raise NotImplementedError

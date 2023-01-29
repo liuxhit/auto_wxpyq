@@ -89,22 +89,52 @@ class ABCWeiXinController:
     def _send_new_pyq(self, pyq_text_content, pyq_pic_path_list, *args, **kwargs):
         raise NotImplementedError
 
-    # @log_action_for_class_method
-    # def send_msg_to_friend(self):
-    #     """
-    #     发送消息给好友
-    #     :return:
-    #     """
-    #     raise NotImplementedError
-    #
-    # @log_action_for_class_method
-    # def send_msg_to_group(self):
-    #     """
-    #     发送消息给群组
-    #     :return:
-    #     """
-    #     raise NotImplementedError
-    #
+    @log_action_for_class_method
+    def send_chat_msg(self, chat_name, text_msg_content, chat_pic_path_list, send_pic_after_text=True, *args, **kwargs):
+        """
+        发送消息给好友/群聊
+        :return:
+        """
+        if self.is_dry_run:
+            if chat_pic_path_list and not send_pic_after_text:
+                is_success, ctx = self._dry_send_pic_msg(chat_name, chat_pic_path_list, *args, **kwargs)
+                if not is_success:
+                    return self._make_resp(action_name='send_chat_msg', is_success=is_success, context=ctx)
+            is_success, ctx = self._dry_send_text_msg(chat_name, text_msg_content, *args, **kwargs)
+            if not is_success:
+                return self._make_resp(action_name='send_chat_msg', is_success=is_success, context=ctx)
+            if chat_pic_path_list and send_pic_after_text:
+                is_success, ctx = self._dry_send_pic_msg(chat_name, chat_pic_path_list, *args, **kwargs)
+                if not is_success:
+                    return self._make_resp(action_name='send_chat_msg', is_success=is_success, context=ctx)
+        else:
+            if chat_pic_path_list and not send_pic_after_text:
+                is_success, ctx = self._send_pic_msg(chat_name, chat_pic_path_list, *args, **kwargs)
+                if not is_success:
+                    return self._make_resp(action_name='send_chat_msg', is_success=is_success, context=ctx)
+            is_success, ctx = self._send_text_msg(chat_name, text_msg_content, *args, **kwargs)
+            if not is_success:
+                return self._make_resp(action_name='send_chat_msg', is_success=is_success, context=ctx)
+            if chat_pic_path_list and send_pic_after_text:
+                is_success, ctx = self._send_pic_msg(chat_name, chat_pic_path_list, *args, **kwargs)
+                if not is_success:
+                    return self._make_resp(action_name='send_chat_msg', is_success=is_success, context=ctx)
+        return self._make_resp(action_name='send_chat_msg', is_success=is_success, context=ctx)
+
+    def _dry_send_text_msg(self, chat_name, text_msg_content, *args, **kwargs):
+        self.log.info(f'【DRY_RUN】发送了一条消息给【{chat_name}】: {text_msg_content}')
+        return True, {'dry_run': True, 'chat_name': chat_name, 'sent_content': text_msg_content}
+
+    def _send_text_msg(self, chat_name, text_msg_content, *args, **kwargs):
+        raise NotImplementedError
+
+    def _dry_send_pic_msg(self, chat_name, chat_pic_path_list, *args, **kwargs):
+        self.log.info(f'【DRY_RUN】发送了一条消息给【{chat_name}】: {chat_pic_path_list}')
+        return True, {'dry_run': True, 'chat_name': chat_name, 'sent_content': chat_pic_path_list}
+
+    def _send_pic_msg(self, chat_name, chat_pic_path_list, *args, **kwargs):
+        raise NotImplementedError
+
     # @log_action_for_class_method
     # def on_receive_msg(self):
     #     """

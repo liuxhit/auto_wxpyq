@@ -7,3 +7,5 @@ from weixin_tool.auto_gui_driver.drivers.android.pages.pyq_home_page import PyqH
 from weixin_tool.auto_gui_driver.drivers.android.pages.pyq_list_page import PyqListPage
 from weixin_tool.auto_gui_driver.drivers.android.pages.album_select_page import AlbumSelectPage
 from weixin_tool.auto_gui_driver.drivers.android.pages.pyq_upload_page import PyqUploadPage
+from weixin_tool.auto_gui_driver.drivers.android.pages.search_page import SearchPage
+from weixin_tool.auto_gui_driver.drivers.android.pages.chat_page import ChatPage

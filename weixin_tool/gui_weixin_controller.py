@@ -36,6 +36,25 @@ class GUIWeiXinController(ABCWeiXinController):
         return ret, {'driver_ret_data': driver_ret_data, 'sent_content': pyq_text_content, 'pyq_pic_path_list': pyq_pic_path_list}
 
     def _dry_send_new_pyq(self, pyq_text_content, pyq_pic_path_list, *args, **kwargs):
-        self.log.info(f'假装通过GUI模拟点击发送了一条朋友圈: {pyq_text_content}')
+        self.log.info(f'【GUI_WXC_DRY_RUN】假装通过GUI模拟点击发送了一条朋友圈: {pyq_text_content}')
         return True, {'dry_run': True, 'sent_content': pyq_text_content, 'pyq_pic_path_list': pyq_pic_path_list}
+
+    def _dry_send_text_msg(self, chat_name, text_msg_content, *args, **kwargs):
+        self.log.info(f'【GUI_WXC_DRY_RUN】假装通过GUI模拟点击发送了一条消息给【{chat_name}】: {text_msg_content}')
+        return super()._dry_send_text_msg(chat_name, text_msg_content, *args, **kwargs)
+
+    def _send_text_msg(self, chat_name, text_msg_content, *args, **kwargs):
+        ret, driver_ret_data = self.gui_driver.send_text_msg(chat_name, text_msg_content)
+        return ret, {'driver_ret_data': driver_ret_data, 'chat_name': chat_name, 'sent_content': text_msg_content}
+
+    def _dry_send_pic_msg(self, chat_name, chat_pic_path_list, *args, **kwargs):
+        self.log.info(f'【GUI_WXC_DRY_RUN】假装通过GUI模拟点击发送了一个图片给【{chat_name}】: {chat_pic_path_list}')
+        return super()._dry_send_pic_msg(chat_name, chat_pic_path_list, *args, **kwargs)
+
+    def _send_pic_msg(self, chat_name, chat_pic_path_list, *args, **kwargs):
+        ret, driver_ret_data = self.gui_driver.send_pic_msg(chat_name, chat_pic_path_list)
+        return ret, {'driver_ret_data': driver_ret_data, 'chat_name': chat_name, 'chat_pic_path_list': chat_pic_path_list}
+
+
+
 

@@ -10,6 +10,7 @@ class HomePage(BasePage):
     def __init__(self, device):
         super().__init__(device)
         self.mine_xpath = r'//*[@resource-id="com.tencent.mm:id/fj3"]/android.widget.LinearLayout[1]/android.widget.RelativeLayout[4]/android.widget.LinearLayout[1]/android.widget.RelativeLayout[1]/android.widget.ImageView[1]'
+        self.search_icon_id = 'com.tencent.mm:id/j5t'
 
     def msg_icon_obj(self):
         """会话图标"""
@@ -31,9 +32,9 @@ class HomePage(BasePage):
         """点击底部我的图标"""
         return self.by_xpath(self.mine_xpath).click()
 
-    def click_add_icon(self):
+    def click_search_icon(self):
         """点击右上角+号图标"""
-        return self.by_id(id_name=self.add_icon).click()
+        return self.by_id(id_name=self.search_icon_id).click()
 
     def click_create_group_btn(self):
         """点击右上角+号图标"""
